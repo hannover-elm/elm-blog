@@ -1,0 +1,112 @@
+h1, h2, h3, h4, h5, h6 {
+  font-size: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body {
+  margin: 0;
+}
+
+html {
+  font-family: serif;
+  color: rgba(0,0,0,.87);
+  font-size: 21px;
+}
+
+body {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+}
+
+.main {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  max-width: 680px;
+  margin-bottom: 60px;
+}
+
+.logo {
+  flex: 1 1 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.page {
+  width: 100%;
+  max-width: 900px;
+}
+
+.blog-post {
+}
+
+.blog-post__headline {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.blog-post__content {
+}
+
+.blog-post p,
+.blog-post pre {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.blog-post pre {
+  border: 1px solid rgba(0,0,0,.87);
+  padding: 4px;
+}
+
+
+.post-form {
+  display: flex;
+  flex-flow: column nowrap;
+
+  &__inputs {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  label, input, textarea {
+    flex: 1 1 100%;
+  }
+
+  textarea {
+    min-height: 400px;
+  }
+
+  input, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    padding: 12px 6px;
+  }
+
+  label, &__actions {
+    margin-top: 2rem;
+  }
+
+  label {
+    margin-bottom: 6px;
+  }
+
+  button {
+    margin-right: 16px;
+  }
+
+  label {
+    text-transform: uppercase;
+    font-size: 0.725rem;
+  }
+}

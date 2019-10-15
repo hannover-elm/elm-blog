@@ -1,0 +1,23 @@
+{
+  "name": "elm-blog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hannover-elm/elm-blog.git"
+  },
+  "author": "Alexander Foremny <aforemny@posteo.de>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/hannover-elm/elm-blog/issues"
+  },
+  "homepage": "https://github.com/hannover-elm/elm-blog#readme",
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}
