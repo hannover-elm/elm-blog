@@ -1,4 +1,4 @@
-module Pages.List exposing (Model, init, view)
+module Pages.Posts exposing (Model, init, view)
 
 import Html exposing (Html, text)
 import Html.Attributes exposing (class)
@@ -24,12 +24,12 @@ init =
 
 view model =
     viewPage
-        [ viewBreadcrumb Route.Overview
+        [ viewBreadcrumb Route.Posts
         , Html.div [ class "posts" ]
             (List.map viewPostItem model.posts)
         , Html.a
             [ class "new-post"
-            , Html.Attributes.href (Route.toString Route.NewPost)
+            , Html.Attributes.href (Route.toString Route.New)
             ]
             [ text "New Post" ]
         ]
@@ -38,7 +38,7 @@ view model =
 viewPostItem post =
     let
         url =
-            Route.toString (Route.Post (Route.PostId post.id))
+            Route.toString (Route.Post post.id)
     in
     Html.a
         [ class "post-item"

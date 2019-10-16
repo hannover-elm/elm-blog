@@ -15,13 +15,14 @@ app.post("/api/post", async (req, res) => {
 app.get("/api/post", async (req, res) => {
   const fileNames = await fs.promises.readdir(`${__dirname}/posts`);
   const posts = await Promise.all(fileNames.map(async fileName => {
+    if (!fileName.match(/\.md$/)) return false;
     const buffer = await fs.promises.readFile(`${__dirname}/posts/${fileName}`);
     const file = buffer.toString();
     const post = JSON.parse(file);
     post.id = fileName.replace(/\.md$/, "");
     return post;
   }));
-  res.json(posts);
+  res.json(posts.filter(post => !!post));
 });
 app.get("/api/post/:id", async (req, res) => {
   const fileName = `${req.params.id}.md`;

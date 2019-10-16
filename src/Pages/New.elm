@@ -17,10 +17,16 @@ type alias Model =
     }
 
 
-fileName title =
-    (String.trim title ++ ".md")
+id : String -> String
+id title =
+    String.trim title
         |> String.replace " " "-"
         |> String.toLower
+
+
+fileName : String -> String
+fileName title =
+    id title ++ ".md"
 
 
 initialModel : Model
@@ -53,7 +59,7 @@ update msg model =
                 , body =
                     Http.jsonBody
                         (encodePost
-                            { id = fileName model.title
+                            { id = id model.title
                             , title = String.trim model.title
                             , content = String.trim model.content
                             }
@@ -73,7 +79,7 @@ view model =
             String.trim model.title == "" || String.trim model.content == ""
     in
     viewPage
-        [ viewBreadcrumb Route.NewPost
+        [ viewBreadcrumb Route.New
         , Html.div [ class "post-form" ]
             [ Html.div [ class "post-form__inputs" ]
                 [ Html.label []
@@ -95,7 +101,7 @@ view model =
                     [ Html.Attributes.disabled saveDisabled
                     , Html.Events.onClick SaveClicked
                     ]
-                    [ text "Speichern" ]
+                    [ text "Save" ]
                 ]
             ]
         ]

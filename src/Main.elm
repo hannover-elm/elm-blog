@@ -1,41 +1,47 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Navigation
+import Browser.Navigation exposing (Key)
 import Html exposing (Html, text)
 import Html.Attributes exposing (class)
 import Http
 import Markdown
-import Pages.List
 import Pages.New
 import Pages.Post
+import Pages.Posts
 import Pages.Utils
 import Route exposing (Route)
 import Types.Post
 import Url exposing (Url)
 
 
-type Model
-    = Loading
-    | Page Page
-    | NotFound String
-    | Error Http.Error
+type alias Model =
+    { key : Browser.Navigation.Key
+    , page : Page
+    }
 
 
 type Page
-    = Posts Pages.List.Model
-    | Post Pages.Post.Model
-    | New Pages.New.Model
+    = Loading
+    | PostsPage Pages.Posts.Model
+    | PostPage Pages.Post.Model
+    | NewPage Pages.New.Model
+    | NotFoundPage String
+    | ErrorPage Http.Error
 
 
 type Msg
     = UrlRequested Browser.UrlRequest
     | UrlChanged Url
-    | NewMsg Pages.New.Msg
     | PageChanged (Result Http.Error Page)
+    | NewPageMsg Pages.New.Msg
 
 
-main : Program () ( Browser.Navigation.Key, Model ) Msg
+type alias Flags =
+    ()
+
+
+main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
@@ -47,106 +53,106 @@ main =
         }
 
 
+init : Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( model, cmd ) =
+        ( page, cmd ) =
             case Route.fromUrl url of
-                Route.Overview ->
+                Route.Posts ->
                     ( Loading
-                    , Cmd.map (PageChanged << Result.map Posts) Pages.List.init
+                    , Cmd.map (PageChanged << Result.map PostsPage) Pages.Posts.init
                     )
 
-                Route.Post (Route.PostId postId) ->
+                Route.Post postId ->
                     ( Loading
-                    , Cmd.map (PageChanged << Result.map Post) (Pages.Post.init postId)
+                    , Cmd.map (PageChanged << Result.map PostPage) (Pages.Post.init postId)
                     )
 
-                Route.NewPost ->
-                    ( Page (New Pages.New.initialModel), Cmd.none )
+                Route.New ->
+                    ( NewPage Pages.New.initialModel, Cmd.none )
 
                 Route.NotFound originalUrl ->
-                    ( NotFound originalUrl, Cmd.none )
+                    ( NotFoundPage originalUrl, Cmd.none )
     in
-    ( ( key, model ), cmd )
+    ( { key = key, page = page }, cmd )
 
 
-view ( _, model ) =
-    { title = ""
-    , body =
-        [ case model of
-            Loading ->
-                Pages.Utils.viewLoading
-
-            NotFound originalUrl ->
-                Pages.Utils.viewNotFound originalUrl
-
-            Error httpError ->
-                Pages.Utils.viewError httpError
-
-            Page (Posts pageModel) ->
-                Pages.List.view pageModel
-
-            Page (Post pageModel) ->
-                Pages.Post.view pageModel
-
-            Page (New pageModel) ->
-                Html.map NewMsg (Pages.New.view pageModel)
-        ]
-    }
-
-
-update msg ( key, model ) =
-    case ( model, msg ) of
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case ( model.page, msg ) of
         ( _, UrlRequested (Browser.Internal url) ) ->
+            ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
+
+        ( _, UrlRequested (Browser.External url) ) ->
+            ( model, Browser.Navigation.load url )
+
+        ( _, UrlChanged url ) ->
             let
-                ( newModel, cmd ) =
+                ( newPage, cmd ) =
                     case Route.fromUrl url of
-                        Route.Overview ->
-                            ( model
-                            , Cmd.map (PageChanged << Result.map Posts) Pages.List.init
+                        Route.Posts ->
+                            ( model.page
+                            , Cmd.map (PageChanged << Result.map PostsPage)
+                                Pages.Posts.init
                             )
 
-                        Route.Post (Route.PostId postId) ->
-                            ( model
-                            , Cmd.map (PageChanged << Result.map Post)
+                        Route.Post postId ->
+                            ( model.page
+                            , Cmd.map (PageChanged << Result.map PostPage)
                                 (Pages.Post.init postId)
                             )
 
-                        Route.NewPost ->
-                            ( Page (New Pages.New.initialModel), Cmd.none )
+                        Route.New ->
+                            ( NewPage Pages.New.initialModel, Cmd.none )
 
                         Route.NotFound originalUrl ->
-                            ( NotFound originalUrl, Cmd.none )
+                            ( NotFoundPage originalUrl, Cmd.none )
             in
-            ( ( key, newModel )
-            , Cmd.batch
-                [ Browser.Navigation.pushUrl key (Url.toString url)
-                , cmd
-                ]
-            )
+            ( { model | page = newPage }, cmd )
 
-        ( _, UrlRequested (Browser.External url) ) ->
-            ( ( key, model ), Browser.Navigation.load url )
-
-        ( _, UrlChanged _ ) ->
-            ( ( key, model ), Cmd.none )
-
-        ( Page (New pageModel), NewMsg pageMsg ) ->
+        ( NewPage pageModel, NewPageMsg pageMsg ) ->
             let
                 ( newPageModel, newCmd ) =
                     Pages.New.update pageMsg pageModel
             in
-            ( ( key, Page (New newPageModel) ), Cmd.map NewMsg newCmd )
+            ( { model | page = NewPage newPageModel }, Cmd.map NewPageMsg newCmd )
 
-        ( _, NewMsg _ ) ->
-            ( ( key, model ), Cmd.none )
+        ( _, NewPageMsg _ ) ->
+            ( model, Cmd.none )
 
         ( _, PageChanged (Ok newPage) ) ->
-            ( ( key, Page newPage ), Cmd.none )
+            ( { model | page = newPage }, Cmd.none )
 
         ( _, PageChanged (Err httpError) ) ->
-            ( ( key, Error httpError ), Cmd.none )
+            ( { model | page = ErrorPage httpError }, Cmd.none )
 
 
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+view : Model -> Browser.Document Msg
+view model =
+    { title = "elm-blog"
+    , body =
+        [ case model.page of
+            Loading ->
+                Pages.Utils.viewLoading
+
+            NotFoundPage originalUrl ->
+                Pages.Utils.viewNotFound originalUrl
+
+            ErrorPage httpError ->
+                Pages.Utils.viewError httpError
+
+            PostsPage pageModel ->
+                Pages.Posts.view pageModel
+
+            PostPage pageModel ->
+                Pages.Post.view pageModel
+
+            NewPage pageModel ->
+                Html.map NewPageMsg (Pages.New.view pageModel)
+        ]
+    }

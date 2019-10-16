@@ -21,13 +21,13 @@ viewPage nodes =
 
 viewBreadcrumb url =
     case url of
-        Route.Overview ->
+        Route.Posts ->
             viewBreadcrumbCustom [] "Posts"
 
-        Route.Post (Route.PostId postId) ->
-            viewBreadcrumbCustom [ ( Route.Overview, "Posts" ) ] postId
+        Route.Post postId ->
+            viewBreadcrumbCustom [ ( Route.Posts, "Posts" ) ] postId
 
-        Route.NewPost ->
+        Route.New ->
             viewBreadcrumbCustom [] "New Post"
 
         Route.NotFound originalRoute ->
@@ -44,7 +44,7 @@ viewBreadcrumbCustom urlParts finalPart =
             Html.span [] [ text string ]
     in
     Html.div [ class "blog-post__breadcrumb" ]
-        (Html.a [ Html.Attributes.href (Route.toString Route.Overview) ] [ text "/" ]
+        (Html.a [ Html.Attributes.href (Route.toString Route.Posts) ] [ text "/" ]
             :: text " "
             :: ((List.map viewRoutePart urlParts ++ [ viewFinalPart finalPart ])
                     |> List.intersperse (text " / ")
