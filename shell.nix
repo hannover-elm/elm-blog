@@ -6,6 +6,7 @@ mkDerivation {
   buildInputs = [
     elmPackages.elm
     elmPackages.elm-format
+    gnumake
     nodejs-11_x
     sass
   ];
