@@ -8,10 +8,13 @@ module Pages.Utils exposing
 
 import Html exposing (Html, text)
 import Html.Attributes exposing (class)
+import Http
 import Markdown
 import Route exposing (Route)
+import Url exposing (Url)
 
 
+viewPage : List (Html msg) -> Html msg
 viewPage nodes =
     Html.div [ class "main" ]
         [ Html.h1 [ class "logo" ] [ text "elm-blog" ]
@@ -19,23 +22,8 @@ viewPage nodes =
         ]
 
 
-viewBreadcrumb url =
-    case url of
-        Route.Posts ->
-            viewBreadcrumbCustom [] "Posts"
-
-        Route.Post postId ->
-            viewBreadcrumbCustom [ ( Route.Posts, "Posts" ) ] postId
-
-        Route.New ->
-            viewBreadcrumbCustom [] "New Post"
-
-        Route.NotFound originalRoute ->
-            viewBreadcrumbCustom [] originalRoute
-
-
-viewBreadcrumbCustom : List ( Route, String ) -> String -> Html msg
-viewBreadcrumbCustom urlParts finalPart =
+viewBreadcrumb : List ( Route, String ) -> String -> Html msg
+viewBreadcrumb urlParts finalPart =
     let
         viewRoutePart ( url, string ) =
             Html.a [ Html.Attributes.href (Route.toString url) ] [ text string ]
@@ -52,6 +40,12 @@ viewBreadcrumbCustom urlParts finalPart =
         )
 
 
+viewLoading : Html msg
+viewLoading =
+    viewPage [ Html.h1 [] [ text "Loading" ] ]
+
+
+viewNotFound : String -> Html msg
 viewNotFound originalUrl =
     viewPage
         [ Html.h1 [] [ text "NTO FNUOD!" ]
@@ -59,14 +53,25 @@ viewNotFound originalUrl =
         ]
 
 
+viewError : Http.Error -> Html msg
 viewError httpError =
     viewPage
-        [ Html.h1 [] [ text "HCF" ]
-        , Html.span [] [ text "I'm hurt!" ]
-        ]
+        [ Html.h1 [] [ text "Error" ]
+        , Html.span []
+            [ case httpError of
+                Http.BadUrl url ->
+                    text ("Bad URL: " ++ url)
 
+                Http.Timeout ->
+                    text "Timeout"
 
-viewLoading =
-    viewPage
-        [ Html.h1 [] [ text "Loading" ]
+                Http.NetworkError ->
+                    text "Network error"
+
+                Http.BadStatus status ->
+                    text ("Bad status: " ++ String.fromInt status)
+
+                Http.BadBody body ->
+                    text ("Unexpected response: " ++ body)
+            ]
         ]

@@ -1,7 +1,7 @@
 module Route exposing (Route(..), fromUrl, toString)
 
 import Url exposing (Url)
-import Url.Parser exposing ((</>), Parser, map, oneOf, s, string, top)
+import Url.Parser exposing ((</>), map, oneOf, s, string, top)
 
 
 type Route
@@ -36,6 +36,6 @@ fromUrl url =
 parseUrl =
     oneOf
         [ map Post (s "posts" </> string)
-        , map New (s "new")
         , map Posts top
+        , map New (s "new")
         ]

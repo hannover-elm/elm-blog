@@ -26,11 +26,15 @@ app.get("/api/post", async (req, res) => {
 });
 app.get("/api/post/:id", async (req, res) => {
   const fileName = `${req.params.id}.md`;
-  const buffer = await fs.promises.readFile(`${__dirname}/posts/${fileName}`);
-  const file = buffer.toString();
-  const post = JSON.parse(file);
-  post.id = req.params.id;
-  res.json(post);
+  try {
+    const buffer = await fs.promises.readFile(`${__dirname}/posts/${fileName}`);
+    const file = buffer.toString();
+    const post = JSON.parse(file);
+    post.id = req.params.id;
+    res.json(post);
+  } catch(error) {
+    res.sendStatus(404);
+  }
 });
 
 app.get("/elm.js", (req, res) => res.sendFile(`${__dirname}/elm.js`));

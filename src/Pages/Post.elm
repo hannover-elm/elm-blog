@@ -34,7 +34,7 @@ update msg model =
 view model =
     viewPage
         [ Html.div [ class "blog-post" ]
-            [ viewBreadcrumb (Route.Post model.post.id)
+            [ viewBreadcrumb [] model.post.title
             , Html.h2 [ class "blog-post__headline" ]
                 [ text model.post.title ]
             , Markdown.toHtml [ class "blog-post__content" ] model.post.content

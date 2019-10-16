@@ -24,7 +24,7 @@ init =
 
 view model =
     viewPage
-        [ viewBreadcrumb Route.Posts
+        [ viewBreadcrumb [] ""
         , Html.div [ class "posts" ]
             (List.map viewPostItem model.posts)
         , Html.a

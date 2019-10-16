@@ -79,7 +79,7 @@ view model =
             String.trim model.title == "" || String.trim model.content == ""
     in
     viewPage
-        [ viewBreadcrumb Route.New
+        [ viewBreadcrumb [] "New Post"
         , Html.div [ class "post-form" ]
             [ Html.div [ class "post-form__inputs" ]
                 [ Html.label []
